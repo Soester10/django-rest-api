@@ -144,9 +144,14 @@ Response:
 ### Additional Filters
 GET Requests
 
-Filters: (category, SKU, stock_status, available_stock)
+Paginantion:
 ```
-http://54.209.198.73/data/?category=Raw+Materials&SKU=&stock_status=&available_stock=
+http://54.209.198.73/data/?page=3
+```
+
+Filters: (category, SKU, stock_status, available_stock, name)
+```
+http://54.209.198.73/data/?category=Raw+Materials&SKU=&stock_status=&available_stock=&name=
 ```
 
 Ordering: (name, SKU (ascending/descending))
