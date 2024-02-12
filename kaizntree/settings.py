@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "api",
     "django_filters",
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
