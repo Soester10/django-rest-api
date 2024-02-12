@@ -62,7 +62,7 @@ class DataViewTestCase(APITestCase):
         )
         self.data_model.tags.add(self.tag)
 
-    def test_data_list(self):
+    def test_data_read(self):
         url = reverse('api:data')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -81,3 +81,9 @@ class DataViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(DataModel.objects.count(), 2)
         self.assertEqual(DataModel.objects.last().name, 'New Product')
+
+    def test_data_read_unauthenticated(self):
+        self.client.logout()
+        url = reverse('api:data')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
