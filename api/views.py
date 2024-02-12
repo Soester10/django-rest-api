@@ -8,7 +8,7 @@ from .validations import custom_validation, validate_username, validate_password
 
 
 from django.contrib.auth import get_user_model, login, logout
-from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 
 from rest_framework.views import APIView
 
@@ -17,8 +17,13 @@ from .serializers import UserRegisterSerializer, UserLoginSerializer, DataSerial
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import DataModel
+from .models import DataModel, Custom_User
 from rest_framework import generics, filters
+
+from .utils import generate_access_token
+from rest_framework.exceptions import AuthenticationFailed
+import jwt
+from django.conf import settings
 
 
 class UserRegister(APIView):
@@ -38,7 +43,8 @@ class UserRegister(APIView):
 
 class UserLogin(APIView):
     permission_classes = (permissions.AllowAny,)
-    authentication_classes = (SessionAuthentication,)
+    # authentication_classes = (SessionAuthentication,)
+    authentication_classes = (TokenAuthentication,)
 
     def post(self, request):
         data = request.data
@@ -48,21 +54,44 @@ class UserLogin(APIView):
         serializer = UserLoginSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.validate(data)
-            login(request, user)
+            user_access_token = generate_access_token(user)
+            response = Response()
+            response.set_cookie(key="access_token", value=user_access_token)
+            response.data = {"access_token": user_access_token}
             cache.delete("api_user_data")
             cache.clear()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return response
+
+            # user = serializer.validate(data)
+            # login(request, user)
+            # cache.delete("api_user_data")
+            # cache.clear()
+            # return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
-    authentication_classes = (SessionAuthentication,)
+    # authentication_classes = (SessionAuthentication,)
+    authentication_classes = (TokenAuthentication,)
 
     def get(self, request):
-        logout(request)
-        cache.delete("api_user_data")
-        cache.clear()
-        return Response(status=status.HTTP_200_OK)
+        user_token = request.COOKIES.get("access_token", None)
+        if user_token:
+            response = Response()
+            response.delete_cookie("access_token")
+            response.data = {"message": "Logged out successfully."}
+            cache.delete("api_user_data")
+            cache.clear()
+            return response
+
+        response = Response()
+        response.data = {"message": "User is already logged out."}
+        return response
+
+        # logout(request)
+        # cache.delete("api_user_data")
+        # cache.clear()
+        # return Response(status=status.HTTP_200_OK)
 
 
 class CustomPagination(PageNumberPagination):
@@ -71,11 +100,55 @@ class CustomPagination(PageNumberPagination):
     max_page_size = 1000
 
 
+##With session ID
+# class Data(generics.ListCreateAPIView):
+#     cache.delete("api_user_data")
+#     cache.clear()
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (SessionAuthentication,)
+
+#     serializer_class = DataSerializer
+#     pagination_class = CustomPagination
+#     filter_backends = [
+#         DjangoFilterBackend,
+#         filters.OrderingFilter,
+#         filters.SearchFilter,
+#     ]
+#     filterset_fields = ["category", "SKU", "stock_status", "available_stock"]
+#     ordering_fields = ["SKU", "name"]
+#     search_fields = ["SKU", "name"]
+
+#     def get_queryset(self):
+#         cache_key_user = "api_user_data"
+#         cached_data = cache.get(cache_key_user)
+#         if not cached_data:
+#             user_data = DataModel.objects.filter(user=self.request.user)
+#             cache.set(cache_key_user, user_data, timeout=60 * 5)
+#         else:
+#             user_data = cached_data
+
+#         return user_data
+
+#     def perform_create(self, serializer):
+#         cache.delete("api_user_data")
+#         cache.clear()
+#         serializer.save(user=self.request.user)
+#         cache_key_user = "api_user_data"
+#         user_data = DataModel.objects.filter(user=self.request.user)
+#         cache.set(cache_key_user, user_data, timeout=60 * 5)
+
+#     def post(self, request, *args, **kwargs):
+#         cache.delete("api_user_data")
+#         cache.clear()
+#         return self.create(request, *args, **kwargs)
+
+
+##With JWT
 class Data(generics.ListCreateAPIView):
     cache.delete("api_user_data")
     cache.clear()
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = (TokenAuthentication,)
 
     serializer_class = DataSerializer
     pagination_class = CustomPagination
@@ -89,22 +162,37 @@ class Data(generics.ListCreateAPIView):
     search_fields = ["SKU", "name"]
 
     def get_queryset(self):
+        user_token = self.request.COOKIES.get("access_token")
+        if not user_token:
+            raise AuthenticationFailed("Unauthenticated user!")
+
+        payload = jwt.decode(user_token, settings.SECRET_KEY, algorithms=["HS256"])
+        user = Custom_User.objects.filter(id=payload["id"]).first()
+
         cache_key_user = "api_user_data"
         cached_data = cache.get(cache_key_user)
         if not cached_data:
-            user_data = DataModel.objects.filter(user=self.request.user)
+            user_data = DataModel.objects.filter(user=user)
             cache.set(cache_key_user, user_data, timeout=60 * 5)
         else:
             user_data = cached_data
 
-        return DataModel.objects.filter(user=self.request.user)
+        return user_data
 
     def perform_create(self, serializer):
+        user_token = self.request.COOKIES.get("access_token")
+        if not user_token:
+            raise AuthenticationFailed("Unauthenticated user!")
+
+        payload = jwt.decode(user_token, settings.SECRET_KEY, algorithms=["HS256"])
+        user = Custom_User.objects.filter(id=payload["id"]).first()
+        serializer.save(user=user)
+
         cache.delete("api_user_data")
         cache.clear()
-        serializer.save(user=self.request.user)
+
         cache_key_user = "api_user_data"
-        user_data = DataModel.objects.filter(user=self.request.user)
+        user_data = DataModel.objects.filter(user=user)
         cache.set(cache_key_user, user_data, timeout=60 * 5)
 
     def post(self, request, *args, **kwargs):
