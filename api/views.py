@@ -1,29 +1,24 @@
-from django.shortcuts import render
-from django.core.cache import cache
-
-# Create your views here.
-
 from rest_framework import permissions, status
-from .validations import custom_validation, validate_username, validate_password
-
-
-from django.contrib.auth import get_user_model, login, logout
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-
 from rest_framework.views import APIView
-
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, DataSerializer
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics, filters
+from rest_framework.exceptions import AuthenticationFailed
+
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import DataModel, Custom_User
-from rest_framework import generics, filters
-
-from .utils import generate_access_token
-from rest_framework.exceptions import AuthenticationFailed
-import jwt
+from django.contrib.auth import get_user_model, login, logout
+from django.shortcuts import render
+from django.core.cache import cache
 from django.conf import settings
+
+from .validations import custom_validation, validate_username, validate_password
+from .serializers import UserRegisterSerializer, UserLoginSerializer, DataSerializer
+from .models import DataModel, Custom_User
+from .utils import generate_access_token
+
+import jwt
 
 
 class UserRegister(APIView):
@@ -62,6 +57,7 @@ class UserLogin(APIView):
             cache.clear()
             return response
 
+            ##session ID
             # user = serializer.validate(data)
             # login(request, user)
             # cache.delete("api_user_data")
@@ -88,6 +84,7 @@ class UserLogout(APIView):
         response.data = {"message": "User is already logged out."}
         return response
 
+        ##session ID
         # logout(request)
         # cache.delete("api_user_data")
         # cache.clear()
@@ -157,7 +154,7 @@ class Data(generics.ListCreateAPIView):
         filters.OrderingFilter,
         filters.SearchFilter,
     ]
-    filterset_fields = ["category", "SKU", "stock_status", "available_stock"]
+    filterset_fields = ["category", "SKU", "stock_status", "available_stock", "name"]
     ordering_fields = ["SKU", "name"]
     search_fields = ["SKU", "name"]
 

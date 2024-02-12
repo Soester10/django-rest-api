@@ -1,4 +1,3 @@
-# from django.contrib.auth import get_user_model
 from api.models import Custom_User
 from django.core.management.base import BaseCommand
 from kaizntree.settings import BASE_DIR
@@ -8,9 +7,6 @@ from dotenv import load_dotenv
 
 env_path = BASE_DIR
 load_dotenv(env_path)
-
-
-# User = get_user_model()
 
 
 class Command(BaseCommand):

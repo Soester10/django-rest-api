@@ -1,12 +1,12 @@
-from django.urls import reverse
+from rest_framework.exceptions import ErrorDetail
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.contrib.auth import get_user_model
 
-# from django.contrib.auth.models import User
-from api.models import DataModel, Tag, Custom_User
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 from django.core.exceptions import ValidationError
-from rest_framework.exceptions import ErrorDetail
+
+from api.models import DataModel, Tag, Custom_User
 
 
 class UserRegisterTestCase(APITestCase):
@@ -77,7 +77,6 @@ class DataViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_data_create(self):
-        # login
         url = reverse("api:data")
         data = {
             "SKU": "DEF456",

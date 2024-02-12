@@ -66,7 +66,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = "kaizntree.urls"
@@ -89,7 +88,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "kaizntree.wsgi.application"
 
-
+##SQL For testing
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -100,6 +99,7 @@ WSGI_APPLICATION = "kaizntree.wsgi.application"
 #     }
 # }
 
+##Postgres
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -161,12 +161,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT AUTHENTICATION CLASSES": (
         # "rest framework.authentication.SessionAuthentication",
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         "rest_framework.authentication.TokenAuthentication",
     ),
 }
 
 
+##Redis Caching
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

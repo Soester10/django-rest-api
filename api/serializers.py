@@ -1,8 +1,11 @@
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
+
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+
 from .models import DataModel, Tag
-from rest_framework.pagination import PageNumberPagination
+
 
 UserModel = get_user_model()
 

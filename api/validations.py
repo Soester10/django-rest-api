@@ -9,10 +9,6 @@ def custom_validation(data):
     email = data["email"].strip()
     username = data["username"].strip()
     password = data["password"].strip()
-    # password2 = data["password2"].strip()
-
-    # if password2 != password1:
-    #     raise ValidationError("Passwords must match!")
 
     if not email or UserModel.objects.filter(email=email).exists():
         raise ValidationError("Email already exists!")
