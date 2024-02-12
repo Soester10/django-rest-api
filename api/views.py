@@ -57,7 +57,7 @@ class UserLogin(APIView):
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
-    def post(self, request):
+    def get(self, request):
         logout(request)
         cache.delete('api_user_data')
         cache.clear()

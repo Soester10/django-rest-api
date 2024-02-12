@@ -34,7 +34,7 @@ class UserLoginLogoutTestCase(APITestCase):
     def test_user_logout(self):
         self.client.force_login(self.user)
         url = reverse('api:logout')
-        response = self.client.post(url)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_user_login_invalid(self):
