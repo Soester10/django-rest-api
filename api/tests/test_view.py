@@ -54,7 +54,12 @@ class DataViewTestCase(APITestCase):
         self.user = get_user_model().objects.create_user(
             username="testuser", email="test@example.com", password="testpassword"
         )
-        self.client.force_login(self.user)
+        # self.client.force_login(self.user)
+        self.client.post(
+            reverse("api:login"),
+            {"username": "testuser", "password": "testpassword"},
+            format="json",
+        )
         self.tag = Tag.objects.create(name="Tag1")
         self.data_model = DataModel.objects.create(
             user=self.user,
@@ -72,6 +77,7 @@ class DataViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_data_create(self):
+        # login
         url = reverse("api:data")
         data = {
             "SKU": "DEF456",
@@ -87,7 +93,8 @@ class DataViewTestCase(APITestCase):
         self.assertEqual(DataModel.objects.last().name, "New Product")
 
     def test_data_read_unauthenticated(self):
-        self.client.logout()
+        # self.client.logout()
+        self.client.get(reverse("api:logout"))
         url = reverse("api:data")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
