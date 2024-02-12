@@ -49,14 +49,18 @@ class UserLogin(APIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.validate(data)
             login(request, user)
+            cache.delete('api_user_data')
+            cache.clear()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    authentication_classes = (SessionAuthentication,)
     def post(self, request):
         logout(request)
+        cache.delete('api_user_data')
+        cache.clear()
         return Response(status=status.HTTP_200_OK)
 
 class CustomPagination(PageNumberPagination):
