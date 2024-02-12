@@ -31,14 +31,13 @@ SECRET_KEY = "django-insecure-8talrw9v+uv0!k*dr5i@*o%=d&l@6ici-@n_s#jw@zxt-f$uy3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
-CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:5173', 'http://localhost:5173']
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:5173", "http://localhost:5173"]
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_ALLOW_ALL = True   
-
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Application definition
@@ -53,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "api",
-    'django_filters',
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -65,8 +64,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'django.middleware.cache.UpdateCacheMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.common.CommonMiddleware",
     # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
@@ -102,12 +101,12 @@ WSGI_APPLICATION = "kaizntree.wsgi.application"
 # }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.environ.get('DB_HOST'),
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASS'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("DB_HOST"),
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASS"),
     }
 }
 
@@ -159,7 +158,7 @@ AUTH_USER_MODEL = "api.Custom_User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "DEFAULT AUTHENTICATION CLASSES": (
         "rest framework.authentication.SessionAuthentication",
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -168,14 +167,13 @@ REST_FRAMEWORK = {
 }
 
 
-
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  # Redis server address and database number
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",  # Redis server address and database number
         # 'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }

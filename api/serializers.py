@@ -14,7 +14,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         def create(self, clean_data):
             user_obj = UserModel.objects.create_user(
-                email=clean_data["email"], password=clean_data["password"], username = clean_data["username"]
+                email=clean_data["email"],
+                password=clean_data["password"],
+                username=clean_data["username"],
             )
             # user_obj.username = clean_data["username"]
             user_obj.set_password(clean_data["password"])
@@ -35,12 +37,10 @@ class UserLoginSerializer(serializers.Serializer):
         return user
 
 
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('name',)
+        fields = ("name",)
 
 
 class DataSerializer(serializers.ModelSerializer):
@@ -48,14 +48,14 @@ class DataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataModel
-        fields = ('SKU', 'name', 'category', 'tags', 'stock_status', 'available_stock')
+        fields = ("SKU", "name", "category", "tags", "stock_status", "available_stock")
 
     def create(self, validated_data):
-        tags_data = validated_data.pop('tags', [])
+        tags_data = validated_data.pop("tags", [])
         data_instance = DataModel.objects.create(**validated_data)
 
         for tag_data in tags_data:
-            tag_name = tag_data.get('name')
+            tag_name = tag_data.get("name")
             tag, _ = Tag.objects.get_or_create(name=tag_name)
             data_instance.tags.add(tag)
 
