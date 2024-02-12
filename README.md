@@ -44,7 +44,7 @@ POST Request:
 ```
 {
     "username":"testUser2",
-    "password":"testUserPassword2",
+    "password":"testUserPassword2"
 }
 ```
 Resonse: Status Code 200
@@ -139,3 +139,25 @@ Response:
     ]
 }
 ```
+
+
+### Additional Filters
+GET Requests
+
+Filters: (category, SKU, stock_status, available_stock)
+```
+http://54.209.198.73/data/?category=Raw+Materials&SKU=&stock_status=&available_stock=
+```
+
+Ordering: (name, SKU (ascending/descending))
+```
+http://54.209.198.73/data/?ordering=-name
+http://54.209.198.73/data/?ordering=SKU
+```
+
+Search: (name, SKU)
+```
+http://54.209.198.73/data/?search=BWAX
+http://54.209.198.73/data/?search=Ocean
+```
+
