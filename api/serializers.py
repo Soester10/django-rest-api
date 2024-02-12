@@ -53,6 +53,7 @@ class DataSerializer(serializers.ModelSerializer):
         model = DataModel
         fields = ("SKU", "name", "category", "tags", "stock_status", "available_stock")
 
+    # map and save each tag
     def create(self, validated_data):
         tags_data = validated_data.pop("tags", [])
         data_instance = DataModel.objects.create(**validated_data)

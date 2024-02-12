@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 
 
+# user manager
 class AppUserManager(BaseUserManager):
     def create_user(self, email, username, password):
         if not email:
@@ -29,6 +30,7 @@ class AppUserManager(BaseUserManager):
         return user
 
 
+# custom user model
 class Custom_User(AbstractUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length=50)
@@ -41,6 +43,7 @@ class Custom_User(AbstractUser, PermissionsMixin):
         return self.username
 
 
+# tag model
 class Tag(models.Model):
     name = models.CharField(max_length=50)
 
@@ -48,11 +51,13 @@ class Tag(models.Model):
         return self.name
 
 
+# data model
 class DataModel(models.Model):
     user = models.ForeignKey(Custom_User, on_delete=models.CASCADE)
     SKU = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
     category = models.CharField(max_length=50)
+    # tag is many to many to accomodate more than one tag for each data
     tags = models.ManyToManyField(Tag)
     stock_status = models.CharField(max_length=50)
     available_stock = models.CharField(max_length=50)

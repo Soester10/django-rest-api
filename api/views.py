@@ -21,6 +21,7 @@ from .utils import generate_access_token
 import jwt
 
 
+# register user
 class UserRegister(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -49,10 +50,13 @@ class UserLogin(APIView):
         serializer = UserLoginSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.validate(data)
+            # generate jwt for signing in users
             user_access_token = generate_access_token(user)
             response = Response()
+            # store jwt in cookie
             response.set_cookie(key="access_token", value=user_access_token)
             response.data = {"access_token": user_access_token}
+            # clear caches to fetch new user's data
             cache.delete("api_user_data")
             cache.clear()
             return response
@@ -74,8 +78,10 @@ class UserLogout(APIView):
         user_token = request.COOKIES.get("access_token", None)
         if user_token:
             response = Response()
+            # delete jwt cookie
             response.delete_cookie("access_token")
             response.data = {"message": "Logged out successfully."}
+            # clear caches to clear logged out user's data
             cache.delete("api_user_data")
             cache.clear()
             return response
@@ -92,7 +98,7 @@ class UserLogout(APIView):
 
 
 class CustomPagination(PageNumberPagination):
-    page_size = 3
+    page_size = 3  # currently set at 3 data per page
     page_size_query_param = "page_size"
     max_page_size = 1000
 
@@ -142,6 +148,7 @@ class CustomPagination(PageNumberPagination):
 
 ##With JWT
 class Data(generics.ListCreateAPIView):
+    # clear cache on first atempt
     cache.delete("api_user_data")
     cache.clear()
     permission_classes = (permissions.AllowAny,)
@@ -159,6 +166,7 @@ class Data(generics.ListCreateAPIView):
     search_fields = ["SKU", "name"]
 
     def get_queryset(self):
+        # check for jwt in cookies
         user_token = self.request.COOKIES.get("access_token")
         if not user_token:
             raise AuthenticationFailed("Unauthenticated user!")
@@ -166,6 +174,7 @@ class Data(generics.ListCreateAPIView):
         payload = jwt.decode(user_token, settings.SECRET_KEY, algorithms=["HS256"])
         user = Custom_User.objects.filter(id=payload["id"]).first()
 
+        # if cached use that, otherwise fetch from db and save it in cache
         cache_key_user = "api_user_data"
         cached_data = cache.get(cache_key_user)
         if not cached_data:
@@ -177,6 +186,7 @@ class Data(generics.ListCreateAPIView):
         return user_data
 
     def perform_create(self, serializer):
+        # check for jwt in cookies
         user_token = self.request.COOKIES.get("access_token")
         if not user_token:
             raise AuthenticationFailed("Unauthenticated user!")
@@ -185,14 +195,17 @@ class Data(generics.ListCreateAPIView):
         user = Custom_User.objects.filter(id=payload["id"]).first()
         serializer.save(user=user)
 
+        # clear cache when new data is added to fetch from db on next GET
         cache.delete("api_user_data")
         cache.clear()
 
+        # fetch from db and add to cache
         cache_key_user = "api_user_data"
         user_data = DataModel.objects.filter(user=user)
         cache.set(cache_key_user, user_data, timeout=60 * 5)
 
     def post(self, request, *args, **kwargs):
+        # clear cache when new data is added to fetch from db on next GET
         cache.delete("api_user_data")
         cache.clear()
         return self.create(request, *args, **kwargs)
