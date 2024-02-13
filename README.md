@@ -166,3 +166,26 @@ http://54.209.198.73/data/?search=BWAX
 http://54.209.198.73/data/?search=Ocean
 ```
 
+
+
+## To run the project locally
+```
+$ git clone <url>
+$ touch .env
+```
+Set up the following attributes in .env
+```
+DB_HOST=db
+DB_NAME=dbname
+DB_USER=postgres
+DB_PASS=postgrespass
+POSTGRES_DB=dbname
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgrespass
+ADMIN_USERNAME=admin
+ADMIN_EMAIL=admin@gmail.com
+ADMIN_PASSWORD=adminpass
+```
+```
+docker-compose up --build
+```
